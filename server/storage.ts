@@ -1,38 +1,60 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import {
+  resumes,
+  type CreateResumeRequest,
+  type UpdateResumeRequest,
+  type ResumeResponse,
+} from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getResumes(): Promise<ResumeResponse[]>;
+  getResume(id: number): Promise<ResumeResponse | undefined>;
+  createResume(resume: CreateResumeRequest): Promise<ResumeResponse>;
+  updateResume(id: number, updates: UpdateResumeRequest): Promise<ResumeResponse>;
+  deleteResume(id: number): Promise<void>;
+  duplicateResume(id: number): Promise<ResumeResponse>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async getResumes(): Promise<ResumeResponse[]> {
+    return await db.select().from(resumes);
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getResume(id: number): Promise<ResumeResponse | undefined> {
+    const [resume] = await db.select().from(resumes).where(eq(resumes.id, id));
+    return resume;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async createResume(insertResume: CreateResumeRequest): Promise<ResumeResponse> {
+    const [resume] = await db.insert(resumes).values(insertResume).returning();
+    return resume;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async updateResume(id: number, updates: UpdateResumeRequest): Promise<ResumeResponse> {
+    const [resume] = await db
+      .update(resumes)
+      .set(updates)
+      .where(eq(resumes.id, id))
+      .returning();
+    return resume;
+  }
+
+  async deleteResume(id: number): Promise<void> {
+    await db.delete(resumes).where(eq(resumes.id, id));
+  }
+
+  async duplicateResume(id: number): Promise<ResumeResponse> {
+    const original = await this.getResume(id);
+    if (!original) throw new Error("Resume not found");
+
+    const { id: _, updatedAt: __, ...dataToCopy } = original;
+    const [duplicated] = await db
+      .insert(resumes)
+      .values({ ...dataToCopy, title: `${original.title} (Copy)` })
+      .returning();
+    return duplicated;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
