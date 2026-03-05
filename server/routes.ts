@@ -16,7 +16,7 @@ export async function registerRoutes(
   });
 
   app.get(api.resumes.get.path, async (req, res) => {
-    const id = Number(req.params.id);
+    const id = req.params.id;
     const resume = await storage.getResume(id);
     if (!resume) {
       return res.status(404).json({ message: "Resume not found" });
@@ -42,7 +42,7 @@ export async function registerRoutes(
 
   app.patch(api.resumes.update.path, async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = req.params.id;
       const input = api.resumes.update.input.parse(req.body);
       const resume = await storage.updateResume(id, input);
       if (!resume) {
@@ -62,7 +62,7 @@ export async function registerRoutes(
 
   app.delete(api.resumes.delete.path, async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = req.params.id;
       await storage.deleteResume(id);
       res.status(204).send();
     } catch (err) {
@@ -72,7 +72,7 @@ export async function registerRoutes(
 
   app.post(api.resumes.duplicate.path, async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = req.params.id;
       const resume = await storage.duplicateResume(id);
       res.status(201).json(resume);
     } catch (err) {
@@ -85,7 +85,7 @@ export async function registerRoutes(
 
   app.get('/api/resumes/:id/export/pdf', async (req, res) => {
     try {
-      const id = Number(req.params.id);
+      const id = req.params.id;
       const resume = await storage.getResume(id);
       if (!resume) {
         return res.status(404).json({ message: "Resume not found" });

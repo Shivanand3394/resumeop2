@@ -14,7 +14,7 @@ export function useResumes() {
   });
 }
 
-export function useResume(id: number) {
+export function useResume(id: string) {
   return useQuery({
     queryKey: [api.resumes.get.path, id],
     queryFn: async () => {
@@ -60,7 +60,7 @@ export function useUpdateResume() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: number } & UpdateResumeInput) => {
+    mutationFn: async ({ id, ...updates }: { id: string } & UpdateResumeInput) => {
       const validated = api.resumes.update.input.parse(updates);
       const url = buildUrl(api.resumes.update.path, { id });
       const res = await fetch(url, {
@@ -85,7 +85,7 @@ export function useDeleteResume() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.resumes.delete.path, { id });
       const res = await fetch(url, {
         method: api.resumes.delete.method,
@@ -108,7 +108,7 @@ export function useDuplicateResume() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const url = buildUrl(api.resumes.duplicate.path, { id });
       const res = await fetch(url, {
         method: api.resumes.duplicate.method,

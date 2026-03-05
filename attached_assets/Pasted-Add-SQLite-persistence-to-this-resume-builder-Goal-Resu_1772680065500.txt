@@ -1,0 +1,51 @@
+Add SQLite persistence to this resume builder.
+
+Goal:
+- Resumes must persist in a SQLite database (not localStorage, not in-memory).
+- No login for now.
+- App should work after refresh and across sessions.
+
+Tech:
+- Use SQLite with a lightweight Node library (prefer better-sqlite3; if not supported, use sqlite3).
+- Use a single database file in the project (e.g., /data/resume-craft.db) and ensure the folder exists.
+
+Database schema:
+Table: resumes
+- id TEXT PRIMARY KEY
+- title TEXT NOT NULL
+- templateId TEXT NOT NULL DEFAULT 'minimal'
+- contentJson TEXT NOT NULL (stringified JSON)
+- createdAt TEXT NOT NULL
+- updatedAt TEXT NOT NULL
+
+Requirements:
+1) Migrations / initialization:
+- On server startup, create the /data folder if missing.
+- Initialize the DB file and create the resumes table if it doesn't exist.
+
+2) API routes:
+Implement these endpoints:
+- GET /api/resumes -> list resumes (id, title, templateId, updatedAt)
+- POST /api/resumes -> create resume with default JSON + default template, returns created resume
+- GET /api/resumes/:id -> get full resume (including contentJson)
+- PUT /api/resumes/:id -> update title, templateId, contentJson; update updatedAt
+- DELETE /api/resumes/:id -> delete resume
+- POST /api/resumes/:id/duplicate -> duplicate resume (new id, "Copy of ..." title)
+
+3) Frontend wiring:
+- Dashboard must load from GET /api/resumes
+- Create New Resume button calls POST /api/resumes then routes to editor
+- Editor must load resume from GET /api/resumes/:id
+- Autosave: debounce 600–900ms and PUT /api/resumes/:id with contentJson+templateId+title
+- Show status: "Saving..." then "Saved" when request completes
+
+4) Data model:
+- Use a single resumeJson object as the source of truth.
+- Store it in DB as contentJson (stringified).
+- Ensure template switching is saved.
+
+5) Seed:
+- If database is empty, optionally create 1 default resume titled "Modern Template" or "Clean Resume".
+
+Keep changes minimal and stable, and ensure the app runs in Replit without additional paid services.
+After implementing, verify: create/edit/refresh still shows saved resumes.

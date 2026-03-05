@@ -20,7 +20,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function Editor() {
   const { id } = useParams<{ id: string }>();
-  const resumeId = parseInt(id, 10);
+  const resumeId = id || "";
 
   const { data: resume, isLoading, isError } = useResume(resumeId);
   const updateMutation = useUpdateResume();
@@ -42,8 +42,8 @@ export default function Editor() {
   const { fields: skillFields, append: appendSkill, remove: removeSkill } = useFieldArray({ control, name: "skills" });
 
   const watchedData = watch();
-  const [debouncedData] = useDebounce(watchedData, 1500);
-  const [debouncedTitle] = useDebounce(title, 1000);
+  const [debouncedData] = useDebounce(watchedData, 800);
+  const [debouncedTitle] = useDebounce(title, 800);
 
   // Initialize form with backend data
   useEffect(() => {
