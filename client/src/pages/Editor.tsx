@@ -45,14 +45,53 @@ export default function Editor() {
   const [debouncedData] = useDebounce(watchedData, 800);
   const [debouncedTitle] = useDebounce(title, 800);
 
+  // LocalStorage persistence
+  useEffect(() => {
+    const saved = localStorage.getItem("resume-craft-data");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed[resumeId]) {
+          const resumeData = parsed[resumeId];
+          setTitle(resumeData.title);
+          setTemplateId(resumeData.templateId);
+          reset(resumeData.contentJson);
+        }
+      } catch (e) {
+        console.error("Error loading from localStorage", e);
+      }
+    }
+  }, [resumeId, reset]);
+
+  useEffect(() => {
+    if (!resumeId) return;
+    const saveToLocalStorage = () => {
+      const current = localStorage.getItem("resume-craft-data");
+      const parsed = current ? JSON.parse(current) : {};
+      parsed[resumeId] = {
+        title: debouncedTitle,
+        templateId,
+        contentJson: debouncedData,
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem("resume-craft-data", JSON.stringify(parsed));
+    };
+    saveToLocalStorage();
+  }, [debouncedData, debouncedTitle, templateId, resumeId]);
+
   // Initialize form with backend data
   useEffect(() => {
     if (resume) {
-      setTitle(resume.title);
-      setTemplateId(resume.templateId);
-      reset(resume.contentJson as ResumeContent);
+      // Only set if not already in localStorage or if backend is newer (optional, here we prefer local if exists)
+      const saved = localStorage.getItem("resume-craft-data");
+      const parsed = saved ? JSON.parse(saved) : {};
+      if (!parsed[resumeId]) {
+        setTitle(resume.title);
+        setTemplateId(resume.templateId);
+        reset(resume.contentJson as ResumeContent);
+      }
     }
-  }, [resume, reset]);
+  }, [resume, reset, resumeId]);
 
   // Auto-save effect
   useEffect(() => {
