@@ -61,11 +61,11 @@ export class D1Storage {
 
   async getResumes(): Promise<ResumeResponse[]> {
     const result = this.db.prepare("SELECT * FROM resumes ORDER BY updated_at DESC").all();
-    return result.map(mapResumeRow);
+    return (result.results ?? []).map(mapResumeRow);
   }
 
   async getResume(id: string): Promise<ResumeResponse | undefined> {
-    const row = this.db.prepare("SELECT * FROM resumes ORDER BY updated_at DESC WHERE id = ?").bind(id).first();
+    const row = this.db.prepare("SELECT * FROM resumes WHERE id = ?").bind(id).first();
     return row ? mapResumeRow(row) : undefined;
   }
 
@@ -140,7 +140,7 @@ export class D1Storage {
 
   async getJobs(): Promise<JobResponse[]> {
     const result = this.db.prepare("SELECT * FROM jobs ORDER BY applied_date DESC").all();
-    return result.map(mapJobRow);
+    return (result.results ?? []).map(mapJobRow);
   }
 
   async createJob(insertJob: InsertJob): Promise<JobResponse> {
@@ -216,7 +216,9 @@ export class D1Storage {
   }
 
   private async getJob(id: string): Promise<JobResponse | undefined> {
-    const row = this.db.prepare("SELECT * FROM jobs ORDER BY applied_date DESC WHERE id = ?").bind(id).first();
+    const row = this.db.prepare("SELECT * FROM jobs WHERE id = ?").bind(id).first();
     return row ? mapJobRow(row) : undefined;
   }
 }
+
+

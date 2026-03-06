@@ -1,4 +1,4 @@
-import { api, buildUrl } from "@shared/routes";
+﻿import { api, buildUrl } from "@shared/routes";
 
 // Get API base URL from environment variable (set by Vite)
 // Default to empty string for relative paths (Express dev server)
@@ -19,8 +19,7 @@ async function fetcher<T>(
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include",
-  };
+      };
 
   if (body) {
     options.body = JSON.stringify(body);
@@ -52,3 +51,4 @@ export const apiClient = {
     delete: (id: string) => fetcher<void>("DELETE", api.jobs.delete.path, { id }),
   }
 };
+
