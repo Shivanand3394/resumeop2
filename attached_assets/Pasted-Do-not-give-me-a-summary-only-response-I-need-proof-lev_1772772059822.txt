@@ -1,0 +1,190 @@
+Do not give me a summary-only response.
+
+I need proof-level verification and completion of the work you claim is already done.
+
+Your task now:
+
+Inspect the actual codebase.
+
+Verify every claim you made against real files and real implementations.
+
+Show exact file paths touched.
+
+If anything is missing, incomplete, mocked, broken, inconsistent, or only partially implemented, fix it directly.
+
+Do not ask me to manually edit anything.
+
+At the end give exact PowerShell commands only.
+
+You previously claimed these were completed:
+
+clean API layer
+
+job tracker foundation
+
+UX/design refinement
+
+autosave hardening
+
+localStorage/remote reconciliation
+
+migration readiness
+
+normalized data structure
+
+template registry pattern
+
+README/config cleanup
+
+Now perform a strict audit and complete/fix whatever is still weak.
+
+Required output format:
+A. Audit results table
+For each item above, provide:
+
+Status: COMPLETE / PARTIAL / NOT DONE
+
+Exact files involved
+
+1-3 sentence proof based on actual implementation
+
+B. Fix pass
+If any item is PARTIAL or NOT DONE:
+
+implement the missing work immediately
+
+then update the audit result
+
+C. Final architecture snapshot
+List exact current folders/files for:
+
+frontend app shell
+
+editor components
+
+preview/template system
+
+hooks/state
+
+API layer
+
+shared contracts/types
+
+job tracker module
+
+backend/storage layer
+
+D. Critical migration blockers
+List the remaining blockers for moving this app from Replit to Cloudflare Pages + Worker + D1.
+Be concrete. Examples:
+
+Node-only APIs still used
+
+Express-specific handlers
+
+SQLite assumptions
+
+filesystem assumptions
+
+missing API base abstraction
+
+preview/export coupling
+
+auth/session issues
+
+environment variable issues
+
+E. Job tracker reality check
+Inspect whether the Job Tracker is:
+
+real persisted data
+
+local-only
+
+mocked
+
+partially wired
+State exactly which it is.
+If it is mocked or partial, upgrade it to a minimum real persisted module using the existing backend structure without overengineering.
+
+F. Autosave reality check
+Inspect the actual autosave flow and confirm:
+
+where localStorage is written
+
+debounce timing
+
+how latest draft is chosen on load
+
+how stale remote overwrites are prevented
+If weak, strengthen it.
+
+G. Template/preview reality check
+Inspect the actual preview/template architecture and confirm:
+
+registry exists
+
+shared input type exists
+
+preview route exists
+
+print-friendly structure exists
+If missing, implement it.
+
+H. Exact changed files
+Provide a flat list of every file you created or modified in this pass.
+
+I. Exact commands
+Provide exact PowerShell commands for:
+
+install
+
+db init or migration
+
+dev run
+
+build
+
+test if present
+
+git branch
+
+git add/commit/push
+
+Important constraints:
+
+Do not just describe intended behavior. Verify actual behavior in code.
+
+Do not say “should” when you can inspect.
+
+Do not leave placeholders if a minimum real implementation can be added now.
+
+Keep all changes compatible with future Cloudflare Worker + D1 migration.
+
+Do not introduce unnecessary dependencies.
+
+Preserve current app behavior unless improving it.
+
+Additional implementation requirements for this pass:
+
+If Job Tracker is only mocked, make it real and persisted.
+
+If API calls are still scattered, consolidate them fully.
+
+If types are duplicated, unify them.
+
+If template handling is ad hoc, convert it to a registry.
+
+If preview route is missing, add one.
+
+If README is vague, make it exact.
+
+If any route names are inconsistent, normalize them.
+
+If localStorage reconciliation is weak, fix it with timestamp-based resolution.
+
+Execution mode:
+Inspect code first, then patch code, then report with proof.
+Do not give me a motivational summary.
+Do not ask me what to do next.
+Ship the fixes.

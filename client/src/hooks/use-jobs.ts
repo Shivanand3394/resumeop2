@@ -1,15 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, buildUrl, type CreateJobInput, type UpdateJobInput, type JobResponse } from "@shared/routes";
+import { api, type CreateJobInput, type UpdateJobInput } from "@shared/routes";
+import { apiClient } from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";
 
 export function useJobs() {
   return useQuery({
     queryKey: [api.jobs.list.path],
-    queryFn: async () => {
-      const res = await fetch(api.jobs.list.path);
-      if (!res.ok) throw new Error("Failed to fetch jobs");
-      return res.json();
-    },
+    queryFn: () => apiClient.jobs.list(),
   });
 }
 
@@ -18,18 +15,10 @@ export function useCreateJob() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (data: CreateJobInput) => {
-      const res = await fetch(api.jobs.create.path, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error("Failed to create job");
-      return res.json();
-    },
+    mutationFn: (data: CreateJobInput) => apiClient.jobs.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.jobs.list.path] });
-      toast({ title: "Job added", description: "The job has been added to your tracker." });
+      toast({ title: "Job added" });
     },
   });
 }
@@ -37,16 +26,8 @@ export function useCreateJob() {
 export function useUpdateJob() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string } & UpdateJobInput) => {
-      const url = buildUrl(api.jobs.update.path, { id });
-      const res = await fetch(url, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
-      });
-      if (!res.ok) throw new Error("Failed to update job");
-      return res.json();
-    },
+    mutationFn: ({ id, ...updates }: { id: string } & UpdateJobInput) => 
+      apiClient.jobs.update(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.jobs.list.path] });
     },
@@ -58,11 +39,7 @@ export function useDeleteJob() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const url = buildUrl(api.jobs.delete.path, { id });
-      const res = await fetch(url, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete job");
-    },
+    mutationFn: (id: string) => apiClient.jobs.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.jobs.list.path] });
       toast({ title: "Job deleted" });

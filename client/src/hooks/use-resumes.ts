@@ -1,30 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, buildUrl, type CreateResumeInput, type UpdateResumeInput, type ResumeResponse } from "@shared/routes";
+import { api, type CreateResumeInput, type UpdateResumeInput, type ResumeResponse } from "@shared/routes";
+import { apiClient } from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";
 
 export function useResumes() {
   return useQuery({
     queryKey: [api.resumes.list.path],
-    queryFn: async () => {
-      const res = await fetch(api.resumes.list.path, { credentials: "include" });
-      if (!res.ok) throw new Error("Failed to fetch resumes");
-      const data = await res.json();
-      return api.resumes.list.responses[200].parse(data);
-    },
+    queryFn: () => apiClient.resumes.list(),
   });
 }
 
 export function useResume(id: string) {
   return useQuery({
     queryKey: [api.resumes.get.path, id],
-    queryFn: async () => {
-      const url = buildUrl(api.resumes.get.path, { id });
-      const res = await fetch(url, { credentials: "include" });
-      if (res.status === 404) return null;
-      if (!res.ok) throw new Error("Failed to fetch resume");
-      const data = await res.json();
-      return api.resumes.get.responses[200].parse(data);
-    },
+    queryFn: () => apiClient.resumes.get(id),
     enabled: !!id,
   });
 }
@@ -34,49 +23,23 @@ export function useCreateResume() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (data: CreateResumeInput) => {
-      const validated = api.resumes.create.input.parse(data);
-      const res = await fetch(api.resumes.create.path, {
-        method: api.resumes.create.method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(validated),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to create resume");
-      return api.resumes.create.responses[201].parse(await res.json());
-    },
+    mutationFn: (data: CreateResumeInput) => apiClient.resumes.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.resumes.list.path] });
-      toast({ title: "Resume created", description: "Your new resume has been created." });
+      toast({ title: "Resume created" });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to create resume.", variant: "destructive" });
-    }
   });
 }
 
 export function useUpdateResume() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
-
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string } & UpdateResumeInput) => {
-      const validated = api.resumes.update.input.parse(updates);
-      const url = buildUrl(api.resumes.update.path, { id });
-      const res = await fetch(url, {
-        method: api.resumes.update.method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(validated),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to update resume");
-      return api.resumes.update.responses[200].parse(await res.json());
-    },
+    mutationFn: ({ id, ...updates }: { id: string } & UpdateResumeInput) => 
+      apiClient.resumes.update(id, updates),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: [api.resumes.list.path] });
       queryClient.invalidateQueries({ queryKey: [api.resumes.get.path, variables.id] });
     },
-    // We intentionally don't show a toast for every update to prevent spam during auto-save
   });
 }
 
@@ -85,21 +48,11 @@ export function useDeleteResume() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const url = buildUrl(api.resumes.delete.path, { id });
-      const res = await fetch(url, {
-        method: api.resumes.delete.method,
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to delete resume");
-    },
+    mutationFn: (id: string) => apiClient.resumes.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.resumes.list.path] });
-      toast({ title: "Deleted", description: "Resume deleted successfully." });
+      toast({ title: "Deleted" });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to delete resume.", variant: "destructive" });
-    }
   });
 }
 
@@ -108,21 +61,10 @@ export function useDuplicateResume() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      const url = buildUrl(api.resumes.duplicate.path, { id });
-      const res = await fetch(url, {
-        method: api.resumes.duplicate.method,
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Failed to duplicate resume");
-      return api.resumes.duplicate.responses[201].parse(await res.json());
-    },
+    mutationFn: (id: string) => apiClient.resumes.duplicate(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.resumes.list.path] });
-      toast({ title: "Duplicated", description: "Resume duplicated successfully." });
+      toast({ title: "Duplicated" });
     },
-    onError: () => {
-      toast({ title: "Error", description: "Failed to duplicate resume.", variant: "destructive" });
-    }
   });
 }

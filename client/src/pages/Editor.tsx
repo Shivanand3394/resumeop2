@@ -53,17 +53,20 @@ export default function Editor() {
         const parsed = JSON.parse(saved);
         if (parsed[resumeId]) {
           const localDraft = parsed[resumeId];
-          // Simple reconciliation: use local if it's newer than what's in state
-          // In a real app, we might check timestamps
-          setTitle(localDraft.title);
-          setTemplateId(localDraft.templateId);
-          reset(localDraft.contentJson);
+          const localTime = new Date(localDraft.updatedAt).getTime();
+          const remoteTime = resume ? new Date(resume.updatedAt).getTime() : 0;
+          
+          if (localTime > remoteTime) {
+            setTitle(localDraft.title);
+            setTemplateId(localDraft.templateId);
+            reset(localDraft.contentJson);
+          }
         }
       } catch (e) {
         console.error("Error loading from localStorage", e);
       }
     }
-  }, [resumeId, reset]);
+  }, [resumeId, reset, resume]);
 
   useEffect(() => {
     if (!resumeId) return;
@@ -90,9 +93,9 @@ export default function Editor() {
     if (resume) {
       const saved = localStorage.getItem("resume-craft-data");
       const parsed = saved ? JSON.parse(saved) : {};
+      const localDraft = parsed[resumeId];
       
-      // Only overwrite local draft if backend is significantly different or local is missing
-      if (!parsed[resumeId]) {
+      if (!localDraft || new Date(resume.updatedAt).getTime() >= new Date(localDraft.updatedAt).getTime()) {
         setTitle(resume.title);
         setTemplateId(resume.templateId);
         reset(resume.contentJson as ResumeContent);
