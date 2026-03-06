@@ -1,14 +1,9 @@
-name = "resumeop2-worker"
+﻿name = "resumeop2-worker"
 main = "src/index.ts"
-compatibility_date = "2024-01-01"
+compatibility_date = "2025-03-01"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "resumeop2-db"
-database_id = "replace-with-database-id"
+database_id = "c1285432-43ee-4923-a49a-0f6dfc4d9a42"
 
-[build]
-command = "npm run build:worker"
-
-[build.upload]
-format = "modules"
