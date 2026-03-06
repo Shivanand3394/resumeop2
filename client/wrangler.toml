@@ -1,0 +1,13 @@
+name = "resumeop2-pages"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "npm run build"
+output_directory = "dist/public"
+
+[build.environment]
+NODE_VERSION = "20"
+
+[[routes]]
+pattern = "/api/*"
+zone_name = "your-subdomain.workers.dev"
