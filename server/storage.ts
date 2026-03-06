@@ -1,9 +1,12 @@
 import { db } from "./db";
 import {
   resumes,
+  jobs,
   type CreateResumeRequest,
   type UpdateResumeRequest,
   type ResumeResponse,
+  type JobResponse,
+  type InsertJob,
 } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
@@ -15,6 +18,12 @@ export interface IStorage {
   updateResume(id: string, updates: UpdateResumeRequest): Promise<ResumeResponse>;
   deleteResume(id: string): Promise<void>;
   duplicateResume(id: string): Promise<ResumeResponse>;
+
+  // Job Tracker
+  getJobs(): Promise<JobResponse[]>;
+  createJob(job: InsertJob): Promise<JobResponse>;
+  updateJob(id: string, updates: Partial<InsertJob>): Promise<JobResponse>;
+  deleteJob(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -73,6 +82,32 @@ export class DatabaseStorage implements IStorage {
       .returning()
       .all();
     return duplicated;
+  }
+
+  async getJobs(): Promise<JobResponse[]> {
+    return db.select().from(jobs).all();
+  }
+
+  async createJob(insertJob: InsertJob): Promise<JobResponse> {
+    const id = uuidv4();
+    const [job] = db.insert(jobs).values({
+      ...insertJob,
+      id,
+    }).returning().all();
+    return job;
+  }
+
+  async updateJob(id: string, updates: Partial<InsertJob>): Promise<JobResponse> {
+    const [job] = db.update(jobs)
+      .set(updates)
+      .where(eq(jobs.id, id))
+      .returning()
+      .all();
+    return job;
+  }
+
+  async deleteJob(id: string): Promise<void> {
+    db.delete(jobs).where(eq(jobs.id, id)).run();
   }
 }
 

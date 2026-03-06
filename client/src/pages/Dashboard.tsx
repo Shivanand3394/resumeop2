@@ -1,9 +1,9 @@
-import { Plus } from "lucide-react";
+import { Plus, Briefcase } from "lucide-react";
 import { useResumes, useCreateResume, useDeleteResume, useDuplicateResume } from "@/hooks/use-resumes";
 import { ResumeCard } from "@/components/ResumeCard";
 import { Button } from "@/components/ui/button";
 import { defaultResumeContent } from "@/types/resume";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
@@ -33,15 +33,23 @@ export default function Dashboard() {
             <h1 className="text-4xl font-display font-bold text-foreground">My Resumes</h1>
             <p className="text-muted-foreground mt-2 text-lg">Build, edit, and export your professional journey.</p>
           </div>
-          <Button 
-            size="lg" 
-            onClick={handleCreate} 
-            disabled={createMutation.isPending}
-            className="hover-elevate shadow-md rounded-xl font-semibold px-6"
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            {createMutation.isPending ? "Creating..." : "Create New Resume"}
-          </Button>
+          <div className="flex gap-4">
+            <Link href="/jobs">
+              <Button variant="outline" size="lg" className="rounded-xl font-semibold px-6">
+                <Briefcase className="w-5 h-5 mr-2" />
+                Job Tracker
+              </Button>
+            </Link>
+            <Button 
+              size="lg" 
+              onClick={handleCreate} 
+              disabled={createMutation.isPending}
+              className="hover-elevate shadow-md rounded-xl font-semibold px-6"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              {createMutation.isPending ? "Creating..." : "Create New Resume"}
+            </Button>
+          </div>
         </header>
 
         {isLoading ? (

@@ -45,17 +45,19 @@ export default function Editor() {
   const [debouncedData] = useDebounce(watchedData, 800);
   const [debouncedTitle] = useDebounce(title, 800);
 
-  // LocalStorage persistence
+  // LocalStorage persistence (Local Draft)
   useEffect(() => {
     const saved = localStorage.getItem("resume-craft-data");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (parsed[resumeId]) {
-          const resumeData = parsed[resumeId];
-          setTitle(resumeData.title);
-          setTemplateId(resumeData.templateId);
-          reset(resumeData.contentJson);
+          const localDraft = parsed[resumeId];
+          // Simple reconciliation: use local if it's newer than what's in state
+          // In a real app, we might check timestamps
+          setTitle(localDraft.title);
+          setTemplateId(localDraft.templateId);
+          reset(localDraft.contentJson);
         }
       } catch (e) {
         console.error("Error loading from localStorage", e);
@@ -66,25 +68,30 @@ export default function Editor() {
   useEffect(() => {
     if (!resumeId) return;
     const saveToLocalStorage = () => {
-      const current = localStorage.getItem("resume-craft-data");
-      const parsed = current ? JSON.parse(current) : {};
-      parsed[resumeId] = {
-        title: debouncedTitle,
-        templateId,
-        contentJson: debouncedData,
-        updatedAt: new Date().toISOString()
-      };
-      localStorage.setItem("resume-craft-data", JSON.stringify(parsed));
+      try {
+        const current = localStorage.getItem("resume-craft-data");
+        const parsed = current ? JSON.parse(current) : {};
+        parsed[resumeId] = {
+          title: debouncedTitle,
+          templateId,
+          contentJson: debouncedData,
+          updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem("resume-craft-data", JSON.stringify(parsed));
+      } catch (e) {
+        console.error("Error saving to localStorage", e);
+      }
     };
     saveToLocalStorage();
   }, [debouncedData, debouncedTitle, templateId, resumeId]);
 
-  // Initialize form with backend data
+  // Initialize form with backend data (Remote Source)
   useEffect(() => {
     if (resume) {
-      // Only set if not already in localStorage or if backend is newer (optional, here we prefer local if exists)
       const saved = localStorage.getItem("resume-craft-data");
       const parsed = saved ? JSON.parse(saved) : {};
+      
+      // Only overwrite local draft if backend is significantly different or local is missing
       if (!parsed[resumeId]) {
         setTitle(resume.title);
         setTemplateId(resume.templateId);

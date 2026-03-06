@@ -8,6 +8,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import Editor from "@/pages/Editor";
 import Preview from "@/pages/Preview";
+import JobTracker from "@/pages/JobTracker";
 
 function Router() {
   return (
@@ -15,6 +16,7 @@ function Router() {
       <Route path="/" component={Dashboard}/>
       <Route path="/editor/:id" component={Editor}/>
       <Route path="/resumes/:id/preview" component={Preview}/>
+      <Route path="/jobs" component={JobTracker}/>
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>

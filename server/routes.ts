@@ -119,5 +119,45 @@ export async function registerRoutes(
     }
   });
 
+  // Job Tracker Routes
+  app.get(api.jobs.list.path, async (req, res) => {
+    const jobs = await storage.getJobs();
+    res.json(jobs);
+  });
+
+  app.post(api.jobs.create.path, async (req, res) => {
+    try {
+      const input = api.jobs.create.input.parse(req.body);
+      const job = await storage.createJob(input);
+      res.status(201).json(job);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.patch(api.jobs.update.path, async (req, res) => {
+    try {
+      const id = req.params.id;
+      const input = api.jobs.update.input.parse(req.body);
+      const job = await storage.updateJob(id, input);
+      res.json(job);
+    } catch (err) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete(api.jobs.delete.path, async (req, res) => {
+    try {
+      const id = req.params.id;
+      await storage.deleteJob(id);
+      res.status(204).send();
+    } catch (err) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   return httpServer;
 }

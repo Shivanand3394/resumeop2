@@ -1,0 +1,390 @@
+Supplementary Replit Prompt — Resume Maker Interface Hardening + Migration Readiness
+
+You are working on an existing resume builder web app that was prototyped on Replit. Your goal in this pass is NOT to do the Cloudflare migration yet. Your goal is to upgrade the interface and code structure so the app becomes migration-ready for Cloudflare Pages + Worker + D1 with minimal rework later.
+
+Important operating rules:
+
+Do not ask me to manually edit files.
+
+Make all code changes yourself.
+
+When you need me to do something locally, output exact PowerShell commands only.
+
+If you want to describe a change, also implement it.
+
+Preserve working features unless replacement is clearly better.
+
+Prefer simple, production-like architecture over clever abstractions.
+
+Do not add heavy dependencies unless clearly necessary.
+
+Keep future Cloudflare Worker compatibility in mind:
+
+avoid Node-only assumptions in shared code
+
+isolate backend-specific logic
+
+keep data contracts explicit
+
+keep storage adapters swappable
+
+Do not break current Replit deployability.
+
+At the end, give:
+
+summary of files changed
+
+exact test steps
+
+exact PowerShell commands for run/build
+
+exact git commands to commit/push
+
+Current app intent:
+A resume builder similar to EnhanceCV, with:
+
+dashboard of resumes
+
+resume editor
+
+template selection
+
+live preview
+
+autosave
+
+local persistence
+
+future PDF export
+
+future job tracking
+
+future Gmail polling + AI extraction for job applications
+
+Existing baseline requirements already implemented or partially attempted:
+
+Resume model: Resume { id, title, templateId, contentJson, updatedAt }
+
+contentJson stored as JSON
+
+create / duplicate / delete resumes
+
+autosave contentJson with saving/saved state
+
+template selection per resume
+
+preview route / component
+
+browser localStorage persistence using key "resume-craft-data"
+
+debounce local save at 800ms
+
+template choice should persist
+
+Your task in this pass:
+Refactor and improve the frontend and frontend-facing backend contracts so this project is ready for migration and production hardening.
+
+Primary objectives:
+A. Interface quality
+B. State reliability
+C. Clean API boundary
+D. Migration readiness
+E. GitHub-ready repo hygiene
+
+Implement the following:
+
+Information architecture and UX cleanup
+
+Make the app feel like a modern resume tool, similar in spirit to EnhanceCV.
+
+Improve layout hierarchy:
+
+left sidebar or top dashboard for resumes list
+
+central editor
+
+right-side or dedicated preview panel
+
+Make the dashboard cleaner and more premium.
+
+Ensure responsive behavior for laptop screens first, mobile second.
+
+Use a clean professional design system:
+
+consistent spacing
+
+clear typography
+
+restrained colors
+
+visible selected states
+
+polished empty states
+
+Add loading, empty, saving, saved, and error states where missing.
+
+Make destructive actions require confirmation.
+
+Make create/duplicate/delete actions obvious and reliable.
+
+Add clear “last updated” display.
+
+Resume editor structure
+
+Standardize contentJson shape so sections are explicit and future-safe.
+
+Use a normalized section-based structure that can support:
+
+personal info
+
+summary
+
+experience
+
+education
+
+skills
+
+projects
+
+certifications
+
+links
+
+Keep it extensible but not overengineered.
+
+Add helper defaults for new resumes.
+
+Ensure editor never crashes if a field is missing.
+
+Add section add/remove/reorder behavior if practical without destabilizing the app.
+
+If reorder is too much for this pass, structure code so it can be added later.
+
+Autosave and persistence hardening
+
+Keep localStorage key as "resume-craft-data".
+
+Keep debounce at 800ms for local persistence.
+
+Distinguish clearly between:
+
+local draft saved
+
+remote save in progress
+
+remote save success
+
+remote save failed
+
+Ensure refresh does not lose latest edits.
+
+Prefer local draft instantly, then reconcile with backend record safely.
+
+Avoid stale overwrites.
+
+Add lightweight version/timestamp conflict handling if possible.
+
+Make autosave implementation reusable and isolated.
+
+Backend/API boundary cleanup
+
+Introduce a clean client-side API layer so later migration from Replit backend to Cloudflare Worker is easy.
+
+Centralize all API calls in one place.
+
+Do not scatter fetch logic through components.
+
+Define typed request/response shapes for:
+
+list resumes
+
+get resume
+
+create resume
+
+update resume
+
+duplicate resume
+
+delete resume
+
+Make route naming simple and portable.
+
+Avoid Replit-specific assumptions in frontend code.
+
+Keep adapter pattern in mind so storage can move from current backend to D1 later.
+
+Preview and template system cleanup
+
+Ensure preview rendering is deterministic and stable.
+
+Make template selection more polished.
+
+Create a clean template registry pattern.
+
+Each template should accept the same resume JSON shape.
+
+Keep print-friendliness in mind for future PDF export.
+
+Add a dedicated print/preview-safe route structure that can later be rendered by Puppeteer or Cloud Run.
+
+Do not implement Cloud Run now, only make preview compatible with that future path.
+
+Migration-readiness refactor
+
+Separate app into clearly understandable layers:
+
+UI components
+
+feature components
+
+hooks/state
+
+API client
+
+types/contracts
+
+utilities
+
+Remove obvious dead code and duplicate logic.
+
+Rename ambiguous files/functions where needed.
+
+Reduce coupling between editor UI and persistence logic.
+
+Make code easy to port into:
+
+Cloudflare Pages frontend
+
+Cloudflare Worker backend
+
+D1 storage
+
+Add comments only where useful for migration-critical areas.
+
+Job tracking foundation
+Do not fully build Gmail polling yet, but prepare the interface foundation for it.
+Implement a basic Job Tracker area in the UI with placeholder-ready architecture.
+Add data model planning and minimal UI for:
+
+job applications list
+
+status
+
+company
+
+role
+
+source
+
+applied date
+
+notes
+
+links
+
+resume used
+
+follow-up date
+
+AI extracted flag
+This should be a clean module or tab, even if partially mocked.
+Keep it ready for future Gmail polling + AI extraction.
+Do not overbuild backend logic yet unless necessary for current app flow.
+
+Repo and production hygiene
+
+Ensure environment usage is centralized.
+
+Add or improve:
+
+README section for run/build
+
+env example if relevant
+
+clear scripts
+
+Keep GitHub friendliness in mind.
+
+Avoid secrets in code.
+
+Ensure app builds cleanly.
+
+Non-goals for this pass
+
+Do not perform Cloudflare migration yet.
+
+Do not implement D1 yet.
+
+Do not implement Gmail polling yet.
+
+Do not implement AI extraction yet.
+
+Do not spend major effort on server-side PDF export yet.
+
+Do not do a large backend rewrite unless required for frontend stability.
+
+Deliverables required at the end
+After implementing, provide:
+A. concise architecture summary
+B. file-by-file summary of changes
+C. exact PowerShell commands to:
+
+install dependencies
+
+run dev
+
+build
+
+run tests if present
+D. exact git commands to:
+
+create branch
+
+add changes
+
+commit
+
+push to GitHub
+E. list of remaining gaps before Cloudflare + D1 migration
+F. list of remaining gaps before Gmail job tracking automation
+
+Success criteria:
+
+App feels more premium and stable
+
+Resume CRUD works
+
+localStorage persistence works reliably
+
+autosave state is trustworthy
+
+template/preview system is cleaner
+
+codebase is easier to migrate
+
+job tracking foundation exists
+
+repo is cleaner for GitHub integration
+
+no manual editing required from me
+
+If a decision is needed, prefer the option that minimizes migration pain to Cloudflare Worker + D1 later.
+
+If the current codebase is messy, refactor pragmatically while preserving velocity.
+
+Start by inspecting the current project structure, then implement the changes directly.
+
+Below this, add this short add-on prompt if you want Replit to stay strict about not dumping theory and instead shipping code:
+
+Execution mode:
+Ship code first. Minimize explanation. Do not ask me what to choose unless the app would break without that answer. Make sensible defaults and implement them. At the end, give only:
+
+what changed
+
+what still remains
+
+exact PowerShell commands
+
+exact git commands
