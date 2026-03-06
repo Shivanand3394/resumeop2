@@ -1,12 +1,19 @@
 import { api, buildUrl } from "@shared/routes";
 
+// Get API base URL from environment variable (set by Vite)
+// Default to empty string for relative paths (Express dev server)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+
 async function fetcher<T>(
   method: string,
   path: string,
   params?: Record<string, string | number>,
   body?: any
 ): Promise<T> {
-  const url = buildUrl(path, params);
+  const relativeUrl = buildUrl(path, params);
+  // Prepend base URL if configured, otherwise use relative path
+  const url = API_BASE_URL ? `${API_BASE_URL}${relativeUrl}` : relativeUrl;
+
   const options: RequestInit = {
     method,
     headers: {
